@@ -23,22 +23,22 @@ namespace _17_letter_combinations_of_a_phone_number
                 return new string[] {};
             }
 
-            var map = new Dictionary<int, string[]>() {
-                { 2, new[] { "a", "b", "c" } },
-                { 3, new[] { "d", "e", "f" } },
-                { 4, new[] { "g", "h", "i" } },
-                { 5, new[] { "j", "k", "l" } },
-                { 6, new[] { "m", "n", "o" } },
-                { 7, new[] { "p", "q", "r", "s" } },
-                { 8, new[] { "t", "u", "v" } },
-                { 9, new[] { "w", "x", "y", "z" } }
+            var map = new Dictionary<int, string>() {
+                { 2, "abc" },
+                { 3, "def" },
+                { 4, "ghi" },
+                { 5, "jkl" },
+                { 6, "mno" },
+                { 7, "pqrs" },
+                { 8, "tuv" },
+                { 9, "wxyz" }
             };
 
-            var ints = digits.Select(d => int.Parse(d.ToString())).ToArray();
+            var ints = digits.Select(d => int.Parse(d.ToString()));
+
             var result = ints.Aggregate(new string[] { "" }, (acc, digit) => {
                 var chars = map[digit];
-                var newAcc = chars.SelectMany(ch => acc.Select(accCh => $"{accCh}{ch}")).ToArray();
-                return newAcc;
+                return chars.SelectMany(ch => acc.Select(accCh => $"{accCh}{ch}")).ToArray();
             });
 
             return result;
