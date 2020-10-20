@@ -53,58 +53,67 @@ namespace _18_4sum
 
     public class Solution {
         public IList<IList<int>> FourSum(int[] nums, int target) {
-            var sortedNums = nums.OrderBy(_ => _).ToArray();
+            Array.Sort(nums);
 
-            var result = KSum(sortedNums, target, 4)
-                .Select(xs => xs as IList<int>)
-                .ToList();
-
+            var result = new List<IList<int>>();
+            KSum(nums, 0, target, 4, new List<int>(), result);
             return result;
         }
 
-        public List<int[]> KSum(int[] nums, int target, int count) {
-            var result = new List<int[]>();
-
-            for (int i = 0; i < nums.Length; i++)
+        private void KSum(int[] nums, int startIndex, int target, int count, List<int> roots, IList<IList<int>> result) {
+            for (int i = startIndex; i < nums.Length - count + 1; i++)
             {
                 var item = nums[i];
 
-                if (i > 0 && item == nums[i - 1]) 
+                if (i > startIndex && item == nums[i - 1]) 
                     continue;
 
-                var rest = count > 3
-                    ? KSum(nums.Skip(i + 1).ToArray(), target - item, count - 1)
-                    : SumOf2(nums.Skip(i + 1).ToArray(), target - item);
-                var items = rest.Select(xs => new[] { item }.Concat(xs).ToArray()).ToArray();
-                result.AddRange(items);
-            }
-
-            return result;
-        }
-
-        public List<int[]> SumOf2(int[] nums, int target) {
-            var cache = new HashSet<int>();
-            var result = new List<int[]>();
-            for (int i = 0; i < nums.Length; i++)
-            {
-                var item = nums[i];
-                if (i > 1 && item == nums[i - 2]) {
-                    continue;
+                var newRoots = new List<int>(roots) { item };
+                if (count > 3) {
+                    KSum(nums, i + 1, target - item, count - 1, newRoots, result);
+                } else {
+                    SumOf2(nums, i + 1, target - item, newRoots, result);
                 }
+            }
+        }
+
+        // public void SumOf2(int[] nums, int startIndex, int target, List<int> roots, IList<IList<int>> result) {
+        //     var cache = new HashSet<int>();
+        //     for (int i = startIndex; i < nums.Length; i++)
+        //     {
+        //         var item = nums[i];
+        //         if ((i > startIndex + 1) && item == nums[i - 2]) {
+        //             continue;
+        //         }
                 
-                var other = target - item;
+        //         var other = target - item;
 
-                if (i > 0 && item == nums[i - 1] && item != other) {
-                    continue;
+        //         if (i > startIndex && item == nums[i - 1] && item != other) {
+        //             continue;
+        //         }
+
+        //         if (cache.TryGetValue(other, out var _)) {
+        //             result.Add(new List<int>(roots) { other, item });
+        //         }
+
+        //         cache.Add(item);
+        //     }
+        // }
+
+        private void SumOf2(int[] nums, int start, int target, List<int> roots, IList<IList<int>> result)
+        {
+            int lo = start, hi = nums.Length - 1;
+            while (lo < hi)
+            {
+                var sum = nums[lo] + nums[hi];
+                if (sum < target || (lo > start && nums[lo] == nums[lo - 1]))
+                    lo++;
+                else if (sum > target || (hi < nums.Length - 1 && nums[hi] == nums[hi + 1]))
+                    hi--;
+                else {
+                    result.Add(new List<int>(roots) { nums[lo++], nums[hi--] });
                 }
-
-                if (cache.TryGetValue(other, out var _)) {
-                    result.Add(new int[] { other, item });
-                }
-
-                cache.Add(item);
             }
-            return result;
         }
     }
 }
