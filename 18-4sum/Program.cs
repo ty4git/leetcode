@@ -55,55 +55,56 @@ namespace _18_4sum
         public IList<IList<int>> FourSum(int[] nums, int target) {
             var sortedNums = nums.OrderBy(_ => _).ToArray();
 
-            var allCombinations = KSum(
-                sortedNums,
-                new List<(int startIndex, int[] items)>(), 
-                4);
-
-            var result = allCombinations.Where(xs => xs.items.Sum() == target)
-                .Select(xs => xs.items as IList<int>)
+            var result = KSum(sortedNums, target, 4)
+                .Select(xs => xs as IList<int>)
                 .ToList();
 
             return result;
         }
 
-        public List<(int startIndex, int[] items)> KSum(int[] nums, List<(int startIndex, int[] items)> acc, int count) {
-            if (!nums.Any()) {
-                return new List<(int startIndex, int[] items)>();
-            }
+        public List<int[]> KSum(int[] nums, int target, int count) {
+            var result = new List<int[]>();
 
-            if (!acc.Any()) {
-                acc.Add((-1, new int[] {}));
-            }
-
-            if (count > nums.Length) {
-                return new List<(int startIndex, int[] items)>();
-            }
-
-            var newAcc = new List<(int startIndex, int[] items)>();
-            for (int i = 0; i < acc.Count; i++)
+            for (int i = 0; i < nums.Length; i++)
             {
-                var accItem = acc[i];
-                int? prevjItem = null;
-                for (int j = accItem.startIndex + 1; j < nums.Length; j++)
-                {
-                    var jItem = nums[j];
+                var item = nums[i];
 
-                    if (jItem == prevjItem)
-                        continue;
+                if (i > 0 && item == nums[i - 1]) 
+                    continue;
 
-                    prevjItem = jItem;
+                var rest = count > 3
+                    ? KSum(nums.Skip(i + 1).ToArray(), target - item, count - 1)
+                    : SumOf2(nums.Skip(i + 1).ToArray(), target - item);
+                var items = rest.Select(xs => new[] { item }.Concat(xs).ToArray()).ToArray();
+                result.AddRange(items);
+            }
 
-                    var newAccItems = accItem.items.Concat(new[] { jItem }).ToArray();
-                    newAcc.Add((startIndex: j, items: newAccItems));
+            return result;
+        }
+
+        public List<int[]> SumOf2(int[] nums, int target) {
+            var cache = new HashSet<int>();
+            var result = new List<int[]>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                var item = nums[i];
+                if (i > 1 && item == nums[i - 2]) {
+                    continue;
                 }
-            }
+                
+                var other = target - item;
 
-            if (--count < 1) {
-                return newAcc;
-            } else {
-                return KSum(nums, newAcc, count);
+                if (i > 0 && item == nums[i - 1] && item != other) {
+                    continue;
+                }
+
+                if (cache.TryGetValue(other, out var _)) {
+                    result.Add(new int[] { other, item });
+                }
+
+                cache.Add(item);
             }
+            return result;
         }
     }
 }
