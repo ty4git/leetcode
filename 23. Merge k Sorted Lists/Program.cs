@@ -18,7 +18,6 @@ namespace _23._Merge_k_Sorted_Lists
                 .ToArray();
 
             var result = new Solution().MergeKLists(lists);
-            
             var r = new List<int>();
             while (result != null)
             {
@@ -39,12 +38,47 @@ namespace _23._Merge_k_Sorted_Lists
     }
     
     public class Solution {
+        // public ListNode MergeKLists(ListNode[] lists) {
+        //     if (!lists.Any()) {
+        //         return null;
+        //     }
+
+        //     if (lists.Length == 1) {
+        //         return lists[0];
+        //     }
+
+        //     var newLists = new List<ListNode>();
+        //     for (var i = 1; i < lists.Length; i += 2)
+        //     {
+        //         var merged = Merge2Lists(lists[i - 1], lists[i]);
+        //         newLists.Add(merged);
+        //     }
+
+        //     if (lists.Length % 2 == 1) {
+        //         newLists.Add(lists[lists.Length - 1]);
+        //     }
+
+        //     return MergeKLists(newLists.ToArray());
+        // }
+
         public ListNode MergeKLists(ListNode[] lists) {
-            ListNode accum = null;
-            foreach (var list in lists) {
-                accum = Merge2Lists(accum, list);
+            if (!lists.Any()) {
+                return null;
             }
-            return accum;
+
+            if (lists.Length == 1) {
+                return lists[0];
+            }
+
+            if (lists.Length < 3) {
+                return Merge2Lists(lists[0], lists[1]);
+            }
+
+            var m = lists.Length / 2;
+            var lm = MergeKLists(lists.Take(m).ToArray());
+            var rm = MergeKLists(lists.Skip(m).ToArray());
+
+            return Merge2Lists(lm, rm);
         }
         
         private ListNode Merge2Lists(ListNode l1, ListNode l2) {
